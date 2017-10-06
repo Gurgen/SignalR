@@ -103,7 +103,7 @@ namespace Microsoft.AspNetCore.Sockets.Client
                     new InvalidOperationException("Cannot start a connection that is not in the Initial state."));
             }
 
-            StartAsyncInternal()
+            StartAsyncInternal(cancellationToken)
                 .ContinueWith(t =>
                 {
                     if (t.IsFaulted)
@@ -123,12 +123,12 @@ namespace Microsoft.AspNetCore.Sockets.Client
             return _startTcs.Task;
         }
 
-        private async Task StartAsyncInternal()
+        private async Task StartAsyncInternal(CancellationToken cancellationToken)
         {
             _logger.HttpConnectionStarting();
             try
             {
-                var negotiationResponse = await Negotiate(Url, _httpClient, _logger);
+                var negotiationResponse = await Negotiate(Url, _httpClient, _logger, cancellationToken);
                 _connectionId = negotiationResponse.ConnectionId;
 
                 // Connection is being stopped while start was in progress
@@ -196,7 +196,7 @@ namespace Microsoft.AspNetCore.Sockets.Client
             }
         }
 
-        private async static Task<NegotiationResponse> Negotiate(Uri url, HttpClient httpClient, ILogger logger)
+        private async static Task<NegotiationResponse> Negotiate(Uri url, HttpClient httpClient, ILogger logger, CancellationToken cancellationToken)
         {
             try
             {
@@ -205,7 +205,7 @@ namespace Microsoft.AspNetCore.Sockets.Client
                 using (var request = new HttpRequestMessage(HttpMethod.Options, url))
                 {
                     request.Headers.UserAgent.Add(Constants.UserAgentHeader);
-                    using (var response = await httpClient.SendAsync(request))
+                    using (var response = await httpClient.SendAsync(request, cancellationToken))
                     {
                         response.EnsureSuccessStatusCode();
                         return await ParseNegotiateResponse(response, logger);
@@ -403,9 +403,9 @@ namespace Microsoft.AspNetCore.Sockets.Client
             }
         }
 
-        public async Task DisposeAsync() => await DisposeAsyncCore().ForceAsync();
+        public async Task DisposeAsync(CancellationToken cancellationToken = default(CancellationToken)) => await DisposeAsyncCore(cancellationToken).ForceAsync();
 
-        private async Task DisposeAsyncCore()
+        private async Task DisposeAsyncCore(CancellationToken cancellationToken)
         {
             _logger.StoppingClient(_connectionId);
 
