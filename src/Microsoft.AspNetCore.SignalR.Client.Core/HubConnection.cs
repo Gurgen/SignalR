@@ -66,7 +66,7 @@ namespace Microsoft.AspNetCore.SignalR.Client
             _connection.Closed += Shutdown;
         }
 
-        public async Task StartAsync(CancellationToken cancellationToken = default(CancellationToken)) => await StartAsyncCore(cancellationToken).ForceAsync();
+        public async Task StartAsync(CancellationToken cancellationToken = default) => await StartAsyncCore(cancellationToken).ForceAsync();
 
         private async Task StartAsyncCore(CancellationToken cancellationToken)
         {
@@ -111,7 +111,7 @@ namespace Microsoft.AspNetCore.SignalR.Client
             return new PassThroughEncoder();
         }
 
-        public async Task DisposeAsync(CancellationToken cancellationToken = default(CancellationToken)) => await DisposeAsyncCore(cancellationToken).ForceAsync();
+        public async Task DisposeAsync(CancellationToken cancellationToken = default) => await DisposeAsyncCore(cancellationToken).ForceAsync();
 
         private async Task DisposeAsyncCore(CancellationToken cancellationToken)
         {
@@ -125,7 +125,7 @@ namespace Microsoft.AspNetCore.SignalR.Client
             _handlers.AddOrUpdate(methodName, invocationHandler, (_, __) => invocationHandler);
         }
 
-        public async Task<ReadableChannel<object>> StreamAsync(string methodName, Type returnType, object[] args, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ReadableChannel<object>> StreamAsync(string methodName, Type returnType, object[] args, CancellationToken cancellationToken = default)
         {
             return await StreamAsyncCore(methodName, returnType, args, cancellationToken).ForceAsync();
         }
@@ -137,7 +137,7 @@ namespace Microsoft.AspNetCore.SignalR.Client
             return channel;
         }
 
-        public async Task<object> InvokeAsync(string methodName, Type returnType, object[] args, CancellationToken cancellationToken = default(CancellationToken)) =>
+        public async Task<object> InvokeAsync(string methodName, Type returnType, object[] args, CancellationToken cancellationToken = default) =>
              await InvokeAsyncCore(methodName, returnType, args, cancellationToken).ForceAsync();
 
         private async Task<object> InvokeAsyncCore(string methodName, Type returnType, object[] args, CancellationToken cancellationToken)
@@ -147,10 +147,10 @@ namespace Microsoft.AspNetCore.SignalR.Client
             return await task;
         }
 
-        public async Task SendAsync(string methodName, CancellationToken cancellationToken = default(CancellationToken), object[] args) =>
-            await SendAsyncCore(methodName, cancellationToken, args).ForceAsync();
+        public async Task SendAsync(string methodName, object[] args, CancellationToken cancellationToken = default(CancellationToken)) =>
+            await SendAsyncCore(methodName, args, cancellationToken).ForceAsync();
 
-        private Task SendAsyncCore(string methodName, CancellationToken cancellationToken, object[] args)
+        private Task SendAsyncCore(string methodName, object[] args, CancellationToken cancellationToken)
         {
             var irq = InvocationRequest.Invoke(cancellationToken, typeof(void), GetNextId(), _loggerFactory, out _);
             return InvokeCore(methodName, irq, args, nonBlocking: true);
