@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -15,8 +16,11 @@ namespace Microsoft.AspNetCore.SignalR
         {
             get
             {
-                _connections.TryGetValue(connectionId, out var connection);
-                return connection;
+                if (_connections.TryGetValue(connectionId, out var connection))
+                {
+                    return connection;
+                }
+                return null;
             }
         }
 
@@ -34,7 +38,10 @@ namespace Microsoft.AspNetCore.SignalR
 
         public IEnumerator<HubConnectionContext> GetEnumerator()
         {
-            return _connections.Values.GetEnumerator();
+            foreach (var item in _connections)
+            {
+                yield return item.Value;
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
