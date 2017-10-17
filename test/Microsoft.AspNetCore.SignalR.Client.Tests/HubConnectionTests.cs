@@ -25,22 +25,22 @@ namespace Microsoft.AspNetCore.SignalR.Client.Tests
         {
             var connection = new Mock<IConnection>();
             connection.SetupGet(p => p.Features).Returns(new FeatureCollection());
-            connection.Setup(m => m.StartAsync(new CancellationToken())).Returns(Task.CompletedTask).Verifiable();
+            connection.Setup(m => m.StartAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask).Verifiable();
             var hubConnection = new HubConnection(connection.Object, Mock.Of<IHubProtocol>(), null);
             await hubConnection.StartAsync();
 
-            connection.Verify(c => c.StartAsync(new CancellationToken()), Times.Once());
+            connection.Verify(c => c.StartAsync(It.IsAny<CancellationToken>()), Times.Once());
         }
 
         [Fact]
         public async Task DisposeAsyncCallsConnectionStart()
         {
             var connection = new Mock<IConnection>();
-            connection.Setup(m => m.StartAsync(new CancellationToken())).Verifiable();
+            connection.Setup(m => m.StartAsync(It.IsAny<CancellationToken>())).Verifiable();
             var hubConnection = new HubConnection(connection.Object, Mock.Of<IHubProtocol>(), null);
             await hubConnection.DisposeAsync();
 
-            connection.Verify(c => c.DisposeAsync(new CancellationToken()), Times.Once());
+            connection.Verify(c => c.DisposeAsync(It.IsAny<CancellationToken>()), Times.Once());
         }
 
         [Fact]
@@ -107,7 +107,7 @@ namespace Microsoft.AspNetCore.SignalR.Client.Tests
             var mockConnection = new Mock<IConnection>();
             mockConnection.SetupGet(p => p.Features).Returns(new FeatureCollection());
             mockConnection
-                .Setup(m => m.DisposeAsync(new CancellationToken()))
+                .Setup(m => m.DisposeAsync(It.IsAny<CancellationToken>()))
                 .Callback(() => mockConnection.Raise(c => c.Closed += null, exception))
                 .Returns(Task.FromResult<object>(null));
 
